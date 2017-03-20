@@ -42,13 +42,12 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 [root@tony local]# tar -zxvf zookeeper-3.4.6.tar.gz ##解压缩
 [root@tony local]# mv zookeeper-3.4.6 zookeeper ##重命名
 [root@tony local]# mv /usr/local/zookeeper/conf/zoo_sample.cfg  /usr/local/zookeeper/conf/zoo.cfg #重命名配置文件
-[root@tony local]# vim /etc/profile ##修改系统环境变量配置文件 
+[root@tony local]# vim /etc/profile ##修改系统环境变量配置文件
+
 export ZOOKEEPER_HOME=/usr/local/zookeeper ##增加zookeeper主目录至系统环境变量
 export PATH=$PATH:$ZOOKEEPER_HOME/bin ##
 [root@tony local]# source /etc/profile #立即生效
 ```
-
-
 
 
 
