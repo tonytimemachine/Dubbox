@@ -61,13 +61,7 @@ Dubbo架构图如下:
 
 ![](assets/Dubbo_e.png)
 
-
-
-
-
 Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并将其命名为Dubbox,主要新功能包括主要的新功能包括：
-
-
 
 * **支持REST风格远程调用（HTTP + JSON/XML\)**
   ：基于非常成熟的JBoss RestEasy框架，在dubbo中实现了REST风格（HTTP + JSON/XML）的远程调用，以显著简化企业内部的跨语言交互，同时显著简化企业对外的Open API、无线API甚至AJAX服务端等等的开发。事实上，这个REST调用也使得Dubbo可以对当今特别流行的“微服务”架构提供基础性支持。 另外，REST调用也达到了比较高的性能，在基准测试下，HTTP + JSON与Dubbo 2.x默认的RPC协议（即TCP + Hessian2二进制序列化）之间只有1.5倍左右的差距，详见下文的基准测试报告。
@@ -95,7 +89,9 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 
 注：dubbox和dubbo 2.x是兼容的，没有改变dubbo的任何已有的功能和配置方式（除了升级了Spring之类的版本）。另外，dubbox也严格遵循了Apache 2.0许可证的要求。
 
-### 二  Zookeeper的安装和使用
+### 二  Dubbox服务化治理
+
+#### 2.1 Zookeeper的安装和使用
 
 将Zookeeper的安装包\(zookeeper-3.4.6.tar.gz\)上传至服务器,解压缩,修改环境变量,即可通过zkServer.sh启动zookeeper服务。
 
@@ -112,14 +108,29 @@ export PATH=$PATH:$ZOOKEEPER_HOME/bin
 [root@tony bin]# ps -ef|grep zookeeper ##查看zookeeper进程
 ```
 
-### 三 基于Dubbo协议的RPC远程服务调用案例 
+### 2.2 Dubbox服务化治理的使用
 
-
-
-RPC远程服务调用服务接口声明:
+dubbox的服务治理是通过其提供的一个web程序\(dubbo-admin.war\)实现的，通常需要修改war包中的dubbo.properties文件中的注册中心地址。
 
 ```
-package com.guoyun.dubbox.api;
+dubbo.registry.address=zookeeper://192.168.1.14:2181 #修改注册中心zookeeper的地址
+dubbo.admin.root.password=root
+dubbo.admin.guest.password=guest
+```
+
+然后将dubbo.war包部署到web服务器上即可通过http://sit.guoyunzaixian.com/dubbo/ 来访问dubbox提供的服务治理
+
+默认用户是root,密码也是root。
+
+主页如下:![](/assets/home_page.png)
+
+### 三 基于Dubbo协议的RPC远程服务调用案例
+
+#### 3.1 基于Dubbo协议的RPC远程服务调提供者 
+
+##### RPC远程服务调用服务接口声明:
+
+```
 
 /**
  * 定义一个接口
@@ -130,16 +141,11 @@ public interface SampleService {
 
      String sayHi(String name);
 }
-
 ```
 
-
-
-RPC远程服务提供者实现接口
+##### RPC远程服务提供者实现接口:
 
 ```
-package com.guoyun.dubbox.provider.dubbo;
-
 import com.guoyun.dubbox.api.SampleService;
 import org.springframework.stereotype.Service;
 
@@ -156,14 +162,11 @@ public class SampleServiceImpl implements SampleService {
         return "Hi "+name;
     }
 }
-
 ```
 
-RPC远程服务暴露接口配置:
+##### RPC远程服务暴露接口配置:
 
 ```
- <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
@@ -185,14 +188,9 @@ RPC远程服务暴露接口配置:
 </beans>
 ```
 
-
-
-RPC远程服务启动类:
+##### RPC远程服务启动类:
 
 ```
-ort org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
 
@@ -221,10 +219,9 @@ public class SampleServiceProviderStart {
 
     }
 }
-
 ```
 
-### 
+##### 服务治理界面![](/assets/1.png)
 
 
 
