@@ -63,7 +63,11 @@ Dubbo架构图如下:
 
 
 
+
+
 Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并将其命名为Dubbox,主要新功能包括主要的新功能包括：
+
+
 
 * **支持REST风格远程调用（HTTP + JSON/XML\)**
   ：基于非常成熟的JBoss RestEasy框架，在dubbo中实现了REST风格（HTTP + JSON/XML）的远程调用，以显著简化企业内部的跨语言交互，同时显著简化企业对外的Open API、无线API甚至AJAX服务端等等的开发。事实上，这个REST调用也使得Dubbo可以对当今特别流行的“微服务”架构提供基础性支持。 另外，REST调用也达到了比较高的性能，在基准测试下，HTTP + JSON与Dubbo 2.x默认的RPC协议（即TCP + Hessian2二进制序列化）之间只有1.5倍左右的差距，详见下文的基准测试报告。
@@ -91,7 +95,7 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 
 注：dubbox和dubbo 2.x是兼容的，没有改变dubbo的任何已有的功能和配置方式（除了升级了Spring之类的版本）。另外，dubbox也严格遵循了Apache 2.0许可证的要求。
 
-### 二  Zookeeper的安装和配置
+### 二  Zookeeper的安装和使用
 
 将Zookeeper的安装包\(zookeeper-3.4.6.tar.gz\)上传至服务器,解压缩,修改环境变量,即可通过zkServer.sh启动zookeeper服务。
 
@@ -108,7 +112,117 @@ export PATH=$PATH:$ZOOKEEPER_HOME/bin
 [root@tony bin]# ps -ef|grep zookeeper ##查看zookeeper进程
 ```
 
-### 三 基于Dubbo协议的服务化案例
+### 三 基于Dubbo协议的RPC远程服务调用案例 
+
+
+
+RPC远程服务调用服务接口声明:
+
+```
+package com.guoyun.dubbox.api;
+
+/**
+ * 定义一个接口
+ * 接口中包含一个sayHi()方法,该方法由服务提供者去实现,被服务调用者调用
+ * Created by tony on 2017/3/20.
+ */
+public interface SampleService {
+
+     String sayHi(String name);
+}
+
+```
+
+
+
+RPC远程服务提供者实现接口
+
+```
+package com.guoyun.dubbox.provider.dubbo;
+
+import com.guoyun.dubbox.api.SampleService;
+import org.springframework.stereotype.Service;
+
+/**
+ * SampleServiceImpl
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午2:34
+ */
+@Service("sampleService")
+public class SampleServiceImpl implements SampleService {
+    @Override
+    public String sayHi(String name) {
+        return "Hi "+name;
+    }
+}
+
+```
+
+RPC远程服务暴露接口配置:
+
+```
+ <?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.guoyun.dubbox.provider"/>
+    <!-- 提供方应用信息,用于计算依赖关系 -->
+    <dubbo:application name="dubbox-provider" owner="guoyun" organization="guoyun"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880"/>
+
+    <dubbo:service interface="com.guoyun.dubbox.api.SampleService" ref="sampleService"/>
+
+</beans>
+```
+
+
+
+RPC远程服务启动类:
+
+```
+ort org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.io.IOException;
+
+/**
+ * Sample Service Provider Start Application
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午2:45
+ */
+public class SampleServiceProviderStart {
+
+
+    private static final Logger logger = LogManager.getLogger();
+
+    public static void main(String[]args) throws IOException {
+
+        ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("sample-service-provider.xml");
+
+        context.start();
+
+        logger.info("Sample Service Provider Start......");
+
+        System.in.read(); //阻塞
+
+
+
+    }
+}
+
+```
 
 ### 
 
