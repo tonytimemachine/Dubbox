@@ -1,3 +1,10 @@
-# My Awesome Book
+# Dubbox的分布式服务治理与RPC远程调用实战
 
-This file file serves as your book's preface, a great place to describe your book's content and ideas.
+http://dubbo.io                                                                             阿里dubbo官网
+
+https://github.com/dangdangdotcom/dubbox                         当当网改进版dubbox
+
+http://blog.csdn.net/column/details/learningdubbo.html        dubbo原理解析
+
+
+
