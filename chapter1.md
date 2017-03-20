@@ -451,7 +451,7 @@ public class UserServiceConsumerStart {
 
         ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("user-service-consumer.xml");
         context.start();
-        
+
         UserService userService= context.getBean(UserService.class);
        User user = userService.getUser(22L);
        logger.info("invoke result "+user);
@@ -473,7 +473,7 @@ RPC远程服务调用配置
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <!-- 提供方应用信息,用于计算依赖关系 -->
-    <dubbo:application name="sample-service-consumer" owner="guoyun" organization="guoyun"/>
+    <dubbo:application name="user-service-consumer" owner="guoyun" organization="guoyun"/>
 
     <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
     <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
@@ -481,8 +481,8 @@ RPC远程服务调用配置
     <!-- 用dubbo协议在20880端口暴露服务 -->
     <dubbo:protocol name="dubbo" port="20880"/>
 
-    <!-- 生成远程服务代理，可以和本地Bean一样使用consumerUserService-->
-    <dubbo:reference interface="com.guoyun.dubbox.api.UserService" id="consumerUserService"/>
+    <dubbo:reference interface="com.guoyun.dubbox.api.UserService" id="consumerUserService" version="1.0.0"/>
+
 
 </beans>
 ```
