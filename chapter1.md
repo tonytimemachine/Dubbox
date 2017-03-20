@@ -175,7 +175,7 @@ public class SampleServiceImpl implements SampleService {
         http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <context:component-scan base-package="com.guoyun.dubbox.provider"/>
     <!-- 提供方应用信息,用于计算依赖关系 -->
-    <dubbo:application name="dubbox-provider" owner="guoyun" organization="guoyun"/>
+    <dubbo:application name="sample-service-provider" owner="guoyun" organization="guoyun"/>
 
     <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
     <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
@@ -226,7 +226,7 @@ public class SampleServiceProviderStart {
 
 RPC远程服务调用实现
 
-只需要启动容器，像访问本地的服务一样调用远程服务 
+只需要启动容器，像访问本地的服务一样调用远程服务
 
 ```
 package com.guoyun.dubbox.consumer;
@@ -259,14 +259,37 @@ public class SampleServiceConsumerStart {
 
     }
 }
+```
 
+##### RPC远程服务调用配置
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.guoyun.dubbox.consumer"/>
+    <!-- 提供方应用信息,用于计算依赖关系 -->
+    <dubbo:application name="sample-service-consumer" owner="guoyun" organization="guoyun"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+
+    <dubbo:annotation  package="com.guoyun.dubbox"/>
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880"/>
+
+    <!-- 生成远程服务代理，可以和本地Bean一样使用sampleService-->
+    <dubbo:reference interface="com.guoyun.dubbox.api.SampleService" id="consumerSampleService"/>
+
+</beans>
 ```
 
 
-
-
-
-##### 
 
 
 
