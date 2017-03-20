@@ -291,12 +291,11 @@ public class SampleServiceConsumerStart {
 
 ### 四 基于注解的方式实现RPC远程服务发布与调用
 
-#### 4.1 基于注解方式实现RPC远程服务发布 
+#### 4.1 基于注解方式实现RPC远程服务发布
 
 RPC远程服务调用接口声明
 
 ```
-
 import com.guoyun.common.bean.User;
 
 /**
@@ -340,7 +339,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Liuguanglei liugl@ekeyfund.com
  * @create 2017-03-下午4:43
  */
-@Service(interfaceClass = com.guoyun.dubbox.api.UserService.class,protocol = "dubbo",version = "1.0.0",owner = "tony")
+@Service(interfaceClass = com.guoyun.dubbox.api.UserService.class,protocol = "dubbo",owner = "tony",version = "1.0.0")
 public class UserServiceImpl implements UserService {
 
     private final AtomicLong idGen=new AtomicLong();
@@ -356,6 +355,7 @@ public class UserServiceImpl implements UserService {
         return idGen.incrementAndGet();
     }
 }
+
 ```
 
 RPC远程服务调用接口实现配置
@@ -369,17 +369,18 @@ RPC远程服务调用接口实现配置
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-    <context:component-scan base-package="com.guoyun.dubbox.provider"/>
+    <context:component-scan base-package="com.guoyun.dubbox.provider.dubbo"/>
     <!-- 提供方应用信息,用于计算依赖关系 -->
     <dubbo:application name="user-service-provider" owner="guoyun" organization="guoyun"/>
 
     <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
     <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
 
+    <dubbo:annotation package="com.guoyun.dubbox.provider.dubbo"/>
+
     <!-- 用dubbo协议在20880端口暴露服务 -->
     <dubbo:protocol name="dubbo" port="20880"/>
 
-    <dubbo:annotation package="com.guoyun.dubbox.provider.dubbo"/>
 
 
 </beans>
@@ -419,11 +420,10 @@ public class UserServiceProviderStart {
     }
 
 }
+
 ```
 
 4.2 RPC远程服务调用
-
-
 
 RPC远程服务调用启动类
 
@@ -431,7 +431,6 @@ RPC远程服务调用启动类
 package com.guoyun.dubbox.consumer;
 
 import com.guoyun.common.bean.User;
-import com.guoyun.dubbox.api.SampleService;
 import com.guoyun.dubbox.api.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -452,9 +451,8 @@ public class UserServiceConsumerStart {
 
         ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("user-service-consumer.xml");
         context.start();
-
-
-        UserService userService= (UserService) context.getBean("consumerUserService");
+        
+        UserService userService= context.getBean(UserService.class);
        User user = userService.getUser(22L);
        logger.info("invoke result "+user);
 
@@ -480,21 +478,14 @@ RPC远程服务调用配置
     <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
     <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
 
-    <dubbo:annotation  package="com.guoyun.dubbox"/>
     <!-- 用dubbo协议在20880端口暴露服务 -->
     <dubbo:protocol name="dubbo" port="20880"/>
 
-    <!-- 生成远程服务代理，可以和本地Bean一样使用sampleService-->
+    <!-- 生成远程服务代理，可以和本地Bean一样使用consumerUserService-->
     <dubbo:reference interface="com.guoyun.dubbox.api.UserService" id="consumerUserService"/>
 
 </beans>
 ```
-
-
-
-
-
-
 
 
 
