@@ -32,6 +32,22 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 
 注：dubbox和dubbo 2.x是兼容的，没有改变dubbo的任何已有的功能和配置方式（除了升级了Spring之类的版本）。另外，dubbox也严格遵循了Apache 2.0许可证的要求。
 
+### 二  Zookeeper的安装和配置
+
+#### 2.1 安装Zookeeper
+
+将Zookeeper的安装包\(zookeeper-3.4.6.tar.gz\)上传至服务器,解压缩,修改环境变量,即可通过zkServer.sh启动zookeeper服务。
+
+```
+[root@tony local]# tar -zxvf zookeeper-3.4.6.tar.gz ##解压缩
+[root@tony local]# mv zookeeper-3.4.6 zookeeper ##重命名
+[root@tony local]# mv /usr/local/zookeeper/conf/zoo_sample.cfg  /usr/local/zookeeper/conf/zoo.cfg #重命名配置文件
+[root@tony local]# vim /etc/profile ##修改系统环境变量配置文件 
+export ZOOKEEPER_HOME=/usr/local/zookeeper ##增加zookeeper主目录至系统环境变量
+export PATH=$PATH:$ZOOKEEPER_HOME/bin ##
+[root@tony local]# source /etc/profile #立即生效
+```
+
 
 
 
