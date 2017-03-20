@@ -127,7 +127,7 @@ dubbo.admin.guest.password=guest
 
 ### 三 基于Dubbo协议的RPC远程服务调用案例
 
-#### 3.1 基于Dubbo协议的RPC远程服务调提供者
+#### 3.1 基于Dubbo协议的RPC远程服务提供者
 
 ##### RPC远程服务调用服务接口声明:
 
@@ -221,6 +221,52 @@ public class SampleServiceProviderStart {
 ```
 
 ##### 发布服务后的服务治理界面![](/assets/1.png)
+
+#### 3.2 基于Dubbo协议的RPC远程服务调用者
+
+RPC远程服务调用实现
+
+只需要启动容器，像访问本地的服务一样调用远程服务 
+
+```
+package com.guoyun.dubbox.consumer;
+
+import com.guoyun.dubbox.api.SampleService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+/**
+ * Sample Service Provider Start
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午2:57
+ */
+public class SampleServiceConsumerStart {
+
+    private static final Logger logger = LogManager.getLogger();
+
+    public static void main(String[]args){
+
+
+        ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("sample-service-consumer.xml");
+        context.start();
+
+        SampleService sampleService= (SampleService) context.getBean("consumerSampleService");
+        String invokeResult =sampleService.sayHi("Tony");
+
+        logger.info("rpc invoke result "+invokeResult);
+
+    }
+}
+
+```
+
+
+
+
+
+##### 
 
 
 
