@@ -89,7 +89,7 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 
 注：dubbox和dubbo 2.x是兼容的，没有改变dubbo的任何已有的功能和配置方式（除了升级了Spring之类的版本）。另外，dubbox也严格遵循了Apache 2.0许可证的要求。
 
-### 二  Dubbox服务化治理
+### 二  Dubbox注册中心和服务化治理
 
 #### 2.1 Zookeeper的安装和使用
 
@@ -113,12 +113,13 @@ export PATH=$PATH:$ZOOKEEPER_HOME/bin
 dubbox的服务治理是通过其提供的一个web程序\(dubbo-admin.war\)实现的，通常需要修改war包中的dubbo.properties文件中的注册中心地址。
 
 ```
-dubbo.registry.address=zookeeper://192.168.1.14:2181 #修改注册中心zookeeper的地址
+dubbo.registry.address=zookeeper://192.168.1.14:2181
+ #修改注册中心zookeeper的地址
 dubbo.admin.root.password=root
 dubbo.admin.guest.password=guest
 ```
 
-然后将dubbo.war包部署到web服务器上即可通过http://sit.guoyunzaixian.com/dubbo/ 来访问dubbox提供的服务治理
+然后将dubbo.war包部署到web服务器上即可通过[http://sit.guoyunzaixian.com/dubbo/](http://sit.guoyunzaixian.com/dubbo/) 来访问dubbox提供的服务治理
 
 默认用户是root,密码也是root。
 
@@ -126,12 +127,11 @@ dubbo.admin.guest.password=guest
 
 ### 三 基于Dubbo协议的RPC远程服务调用案例
 
-#### 3.1 基于Dubbo协议的RPC远程服务调提供者 
+#### 3.1 基于Dubbo协议的RPC远程服务调提供者
 
 ##### RPC远程服务调用服务接口声明:
 
 ```
-
 /**
  * 定义一个接口
  * 接口中包含一个sayHi()方法,该方法由服务提供者去实现,被服务调用者调用
@@ -191,7 +191,6 @@ public class SampleServiceImpl implements SampleService {
 ##### RPC远程服务启动类:
 
 ```
-
 import java.io.IOException;
 
 /**
@@ -221,7 +220,7 @@ public class SampleServiceProviderStart {
 }
 ```
 
-##### 服务治理界面![](/assets/1.png)
+##### 发布服务后的服务治理界面![](/assets/1.png)
 
 
 
