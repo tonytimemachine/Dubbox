@@ -34,8 +34,6 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 
 ### 二  Zookeeper的安装和配置
 
-#### 2.1 安装Zookeeper
-
 将Zookeeper的安装包\(zookeeper-3.4.6.tar.gz\)上传至服务器,解压缩,修改环境变量,即可通过zkServer.sh启动zookeeper服务。
 
 ```
@@ -47,6 +45,9 @@ Dubbox是当当网根据自身的需求，为Dubbo实现了一些新功能，并
 export ZOOKEEPER_HOME=/usr/local/zookeeper ##增加zookeeper主目录至系统环境变量
 export PATH=$PATH:$ZOOKEEPER_HOME/bin ##
 [root@tony local]# source /etc/profile #立即生效
+
+[root@tony bin]# sh /usr/local/zookeeper/bin/zkServer.sh start ##启动zookeeper服务
+[root@tony bin]# ps -ef|grep zookeeper ##查看zookeeper进程
 ```
 
 
