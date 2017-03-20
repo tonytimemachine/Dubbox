@@ -255,7 +255,7 @@ public class SampleServiceConsumerStart {
         SampleService sampleService= (SampleService) context.getBean("consumerSampleService");
         String invokeResult =sampleService.sayHi("Tony");
 
-        logger.info("rpc invoke result "+invokeResult);
+        logger.info("rpc invoke result : "+invokeResult);
 
     }
 }
@@ -290,6 +290,149 @@ public class SampleServiceConsumerStart {
 ```
 
 
+
+### 四 基于注解的方式实现RPC远程服务发布与调用
+
+
+
+RPC远程服务调用接口声明
+
+```
+package com.guoyun.dubbox.api;
+
+import com.guoyun.common.bean.User;
+
+/**
+ * 用户接口
+ * Created by tony on 2017/3/20.
+ */
+public interface UserService {
+
+
+    /**
+     * 根据ID获取用户
+     * @param id
+     * @return
+     */
+    User getUser(Long id);
+
+
+    /**
+     * 用户注册
+     * @param user
+     * @return
+     */
+    Long registerUser(User user);
+}
+
+```
+
+
+
+RPC远程服务调用接口实现
+
+```
+package com.guoyun.dubbox.provider.dubbo;
+
+import com.alibaba.dubbo.config.annotation.Service;
+import com.guoyun.common.bean.User;
+import com.guoyun.dubbox.api.UserService;
+
+import java.util.concurrent.atomic.AtomicLong;
+
+/**
+ * User Service Impl
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午4:43
+ */
+@Service(interfaceClass = com.guoyun.dubbox.api.UserService.class,protocol = "dubbo",version = "1.0.0",owner = "tony")
+public class UserServiceImpl implements UserService {
+
+    private final AtomicLong idGen=new AtomicLong();
+
+
+    @Override
+    public User getUser(Long id) {
+        return new User(id,"username"+id,"123456");
+    }
+
+    @Override
+    public Long registerUser(User user) {
+        return idGen.incrementAndGet();
+    }
+}
+
+```
+
+
+
+RPC远程服务调用接口实现配置
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.guoyun.dubbox.provider"/>
+    <!-- 提供方应用信息,用于计算依赖关系 -->
+    <dubbo:application name="user-service-provider" owner="guoyun" organization="guoyun"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880"/>
+
+    <dubbo:annotation package="com.guoyun.dubbox.provider.dubbo"/>
+
+
+</beans>
+```
+
+RPC远程服务调用启动类
+
+```
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.io.IOException;
+
+/**
+ * User Service Provider Start
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午4:50
+ */
+public class UserServiceProviderStart {
+
+    private static final Logger logger = LogManager.getLogger();
+
+    public static void main(String[]args) throws IOException {
+
+        ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("user-service-provider.xml");
+
+        context.start();
+
+        logger.info("User Service Provider Start......");
+
+        System.in.read(); //阻塞
+
+
+
+    }
+
+}
+```
+
+
+
+###  
 
 
 
