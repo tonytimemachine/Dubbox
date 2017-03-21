@@ -132,6 +132,8 @@ dubbo.admin.guest.password=guest
 ##### RPC远程服务调用服务接口声明:
 
 ```
+package com.guoyun.dubbox.api;
+
 /**
  * 定义一个接口
  * 接口中包含一个sayHi()方法,该方法由服务提供者去实现,被服务调用者调用
@@ -141,11 +143,14 @@ public interface SampleService {
 
      String sayHi(String name);
 }
+
 ```
 
 ##### RPC远程服务提供者实现接口:
 
 ```
+package com.guoyun.dubbox.provider.dubbo;
+
 import com.guoyun.dubbox.api.SampleService;
 import org.springframework.stereotype.Service;
 
@@ -162,11 +167,14 @@ public class SampleServiceImpl implements SampleService {
         return "Hi "+name;
     }
 }
+
 ```
 
 ##### RPC远程服务暴露接口配置:
 
 ```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
@@ -191,6 +199,12 @@ public class SampleServiceImpl implements SampleService {
 ##### RPC远程服务启动类:
 
 ```
+package com.guoyun.dubbox.provider.start;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import java.io.IOException;
 
 /**
@@ -218,6 +232,7 @@ public class SampleServiceProviderStart {
 
     }
 }
+
 ```
 
 ##### 发布服务后的服务治理界面![](/assets/1.png)
@@ -259,6 +274,7 @@ public class SampleServiceConsumerStart {
 
     }
 }
+
 ```
 
 ##### RPC远程服务调用配置
@@ -355,7 +371,6 @@ public class UserServiceImpl implements UserService {
         return idGen.incrementAndGet();
     }
 }
-
 ```
 
 RPC远程服务调用接口实现配置
@@ -420,12 +435,11 @@ public class UserServiceProviderStart {
     }
 
 }
-
 ```
 
 4.2 RPC远程服务调用
 
-RPC远程服务调用启动类
+RPC远程服务调用者启动类
 
 ```
 package com.guoyun.dubbox.consumer;
@@ -453,12 +467,11 @@ public class UserServiceConsumerStart {
         context.start();
 
         UserService userService= context.getBean(UserService.class);
-       User user = userService.getUser(22L);
-       logger.info("invoke result "+user);
+        User user = userService.getUser(22L);
+        logger.info("invoke result "+user);
 
     }
 }
-
 ```
 
 RPC远程服务调用配置
@@ -486,6 +499,217 @@ RPC远程服务调用配置
 
 </beans>
 ```
+
+
+
+
+
+### 五 服务之间的依赖调用
+
+在实际开发场景中可能会存在一种情况，DependencyServiceProvider可能会被DependencyServiceConsumer服务调用，而DependencyServiceProvider本身又会去调用SampleServiceProvider服务来实现自身的业务逻辑处理。
+
+
+
+依赖服务接口声明 
+
+```
+package com.guoyun.dubbox.api;
+
+/**
+ * 服务之间的依赖调用
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午6:38
+ */
+public interface DependencyService {
+
+
+    public String dependency();
+}
+
+```
+
+
+
+依赖服务接口实现
+
+```
+package com.guoyun.dubbox.provider.dubbo;
+
+import com.guoyun.dubbox.api.DependencyService;
+import com.guoyun.dubbox.api.SampleService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Dependency Service Impl
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午6:38
+ */
+@Service("dependencyService")
+@com.alibaba.dubbo.config.annotation.Service(interfaceClass = com.guoyun.dubbox.api.DependencyService.class,protocol = "dubbo",version = "1.0.0",owner = "tony",retries = 2)
+public class DependencyServiceImpl implements DependencyService {
+
+    private static final Logger logger = LogManager.getLogger();
+
+    @Autowired
+    private SampleService sampleService;
+
+    @Override
+    public String dependency() {
+
+        String dependencyMethod=sampleService.sayHi("Tony");
+        logger.info( "dependency method invoke result :"+dependencyMethod);
+
+        return "execute invoke dependency method";
+    }
+}
+
+```
+
+依赖服务启动类
+
+```
+ package com.guoyun.dubbox.provider.start;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.io.IOException;
+
+/**
+ * Dependency Service Provider Start
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-上午10:00
+ */
+public class DependencyServiceProviderStart {
+
+
+    private static final Logger logger = LogManager.getLogger();
+
+    public static void main(String[]args) throws IOException {
+
+        ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("dependency-service-provider.xml");
+
+        context.start();
+
+        logger.info("Dependency Service Provider Start......");
+
+        System.in.read(); //阻塞
+
+
+
+    }
+}
+
+```
+
+依赖服务 配置
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.guoyun.dubbox.provider.dubbo"/>
+    <!-- 提供方应用信息,用于计算依赖关系 -->
+    <dubbo:application name="dependency-service-provider" owner="guoyun" organization="guoyun"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+
+    <dubbo:annotation package="com.guoyun.dubbox.provider.dubbo"/>
+
+    <!-- 用dubbo协议在20888端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20888"/>
+
+    <!-- 依赖sampleService-->
+    <dubbo:reference interface="com.guoyun.dubbox.api.SampleService" id="dependencySampleService"/>
+
+
+
+</beans>
+```
+
+
+
+调用依赖服务启动类
+
+```
+package com.guoyun.dubbox.consumer;
+
+import com.guoyun.dubbox.api.DependencyService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+/**
+ * User Service Provider Start
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-下午2:57
+ */
+public class DependencyServiceConsumerStart {
+
+    private static final Logger logger = LogManager.getLogger();
+
+    public static void main(String[]args){
+
+
+        ClassPathXmlApplicationContext context=new ClassPathXmlApplicationContext("dependency-service-consumer.xml");
+        context.start();
+
+        DependencyService dependencyService= context.getBean(DependencyService.class);
+        String invokeResult =dependencyService.dependency();
+        logger.info("invoke result "+invokeResult);
+
+    }
+}
+
+```
+
+ 调用依赖服务配置
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!-- 提供方应用信息,用于计算依赖关系 -->
+    <dubbo:application name="user-service-consumer" owner="guoyun" organization="guoyun"/>
+
+    <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880" />
+
+    <dubbo:reference interface="com.guoyun.dubbox.api.DependencyService" id="consumerDependcyService" version="1.0.0" />
+
+
+</beans>
+```
+
+
+
+
+
+
+
+
 
 
 
