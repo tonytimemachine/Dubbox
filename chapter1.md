@@ -685,14 +685,11 @@ public class DependencyServiceConsumerStart {
 </beans>
 ```
 
+### 六  基于kryo的序列化使用
 
-
-### 六  基于kryo的序列化使用       
-
-注册被序列化的类          
+注册被序列化的类
 
 ```
-
 import com.alibaba.dubbo.common.serialize.support.SerializationOptimizer;
 import com.guoyun.dubbox.common.bean.User;
 
@@ -715,15 +712,70 @@ public class SerializationOptimizerImpl implements SerializationOptimizer {
         return clazz;
     }
 }
-
 ```
 
 配置使用Kryo实现对象的序列化
 
 ```
     <dubbo:protocol name="dubbo" port="20880" serialization="kryo" optimizer="com.guoyun.dubbox.common.util.SerializationOptimizerImpl"/>
+```
+
+
+
+### 七 现有系统改造
+
+#### 7.1 登录
+
+
+
+itfinuser :用户相关服务提供方
+
+这里暴露UserInfoService接口下的所有方法 
 
 ```
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.guoyun.dubbox.provider"/>
+    <!-- 提供方应用信息,用于计算依赖关系 -->
+    <dubbo:application name="user-provider" owner="guoyun" organization="guoyun"/>
+    <!-- 使用zookeeper注册中心暴露服务地址 多个地址 zookeeper://192.168.1.14:2181?backup=192.168.1.15:2181,192.168.1.16:2181-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880" />
+    <!-- 声明需要暴露的服务接口-->
+    <dubbo:service interface="com.hengpeng.itfinuser.service.UserInfoService" ref="userInfoService"></dubbo:service>
+
+</beans>
+
+```
+
+
+
+itfinls:h5 
+
+获取生成的代理对象，调用服务方法 
+
+```
+ /*    UserInfoResponse response = (UserInfoResponse) serviceFactory.getPortUserFactory()
+                .remoteTrans(userLoginRequest);
+        */
+        logger.info("dubbox 开始调用..............."+System.currentTimeMillis());
+        UserInfoService userInfoService =ComponentContextLoader.getBean(UserInfoService.class);
+        UserInfoResponse response=	userInfoService.login(userLoginRequest);
+        logger.info("dubbox 结束调用..............."+System.currentTimeMillis());
+```
+
+
+
+#### 
+
+
 
 
 
