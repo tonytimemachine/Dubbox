@@ -143,7 +143,6 @@ public interface SampleService {
 
      String sayHi(String name);
 }
-
 ```
 
 ##### RPC远程服务提供者实现接口:
@@ -167,7 +166,6 @@ public class SampleServiceImpl implements SampleService {
         return "Hi "+name;
     }
 }
-
 ```
 
 ##### RPC远程服务暴露接口配置:
@@ -232,7 +230,6 @@ public class SampleServiceProviderStart {
 
     }
 }
-
 ```
 
 ##### 发布服务后的服务治理界面![](/assets/1.png)
@@ -274,7 +271,6 @@ public class SampleServiceConsumerStart {
 
     }
 }
-
 ```
 
 ##### RPC远程服务调用配置
@@ -500,17 +496,11 @@ RPC远程服务调用配置
 </beans>
 ```
 
-
-
-
-
 ### 五 服务之间的依赖调用
 
 在实际开发场景中可能会存在一种情况，DependencyServiceProvider可能会被DependencyServiceConsumer服务调用，而DependencyServiceProvider本身又会去调用SampleServiceProvider服务来实现自身的业务逻辑处理。
 
-
-
-依赖服务接口声明 
+依赖服务接口声明
 
 ```
 package com.guoyun.dubbox.api;
@@ -526,10 +516,7 @@ public interface DependencyService {
 
     public String dependency();
 }
-
 ```
-
-
 
 依赖服务接口实现
 
@@ -567,7 +554,6 @@ public class DependencyServiceImpl implements DependencyService {
         return "execute invoke dependency method";
     }
 }
-
 ```
 
 依赖服务启动类
@@ -606,7 +592,6 @@ public class DependencyServiceProviderStart {
 
     }
 }
-
 ```
 
 依赖服务 配置
@@ -640,8 +625,6 @@ public class DependencyServiceProviderStart {
 </beans>
 ```
 
-
-
 调用依赖服务启动类
 
 ```
@@ -674,10 +657,9 @@ public class DependencyServiceConsumerStart {
 
     }
 }
-
 ```
 
- 调用依赖服务配置
+调用依赖服务配置
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -705,11 +687,43 @@ public class DependencyServiceConsumerStart {
 
 
 
+### 六  基于kryo的序列化使用       
 
+注册被序列化的类          
 
+```
 
+import com.alibaba.dubbo.common.serialize.support.SerializationOptimizer;
+import com.guoyun.dubbox.common.bean.User;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
+/**
+ * SerializationOptimizerImpl
+ *
+ * @author Liuguanglei liugl@ekeyfund.com
+ * @create 2017-03-上午11:57
+ */
+public class SerializationOptimizerImpl implements SerializationOptimizer {
+    @Override
+    public Collection<Class> getSerializableClasses() {
+
+        List<Class> clazz =new LinkedList<>();
+        clazz.add(User.class);
+        return clazz;
+    }
+}
+
+```
+
+配置使用Kryo实现对象的序列化
+
+```
+    <dubbo:protocol name="dubbo" port="20880" serialization="kryo" optimizer="com.guoyun.dubbox.common.util.SerializationOptimizerImpl"/>
+
+```
 
 
 
