@@ -764,7 +764,7 @@ itfinls:h5
         logger.info("dubbox 结束调用..............."+System.currentTimeMillis());
 ```
 
-#### 服务调用方配置 
+#### 服务调用方配置
 
 ```
  <?xml version="1.0" encoding="UTF-8"?>
@@ -780,7 +780,7 @@ itfinls:h5
     <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
     <!--生成远程代理,可以像调用本地Bean一样使用sampleService -->
     <dubbo:reference  id="userInfoService" interface="com.hengpeng.itfinuser.service.UserInfoService"/>
-    
+
 </beans>
 ```
 
