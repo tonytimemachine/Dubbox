@@ -720,17 +720,13 @@ public class SerializationOptimizerImpl implements SerializationOptimizer {
     <dubbo:protocol name="dubbo" port="20880" serialization="kryo" optimizer="com.guoyun.dubbox.common.util.SerializationOptimizerImpl"/>
 ```
 
-
-
 ### 七 现有系统改造
 
 #### 7.1 登录
 
-
-
 itfinuser :用户相关服务提供方
 
-这里暴露UserInfoService接口下的所有方法 
+这里暴露UserInfoService接口下的所有方法
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -752,14 +748,11 @@ itfinuser :用户相关服务提供方
     <dubbo:service interface="com.hengpeng.itfinuser.service.UserInfoService" ref="userInfoService"></dubbo:service>
 
 </beans>
-
 ```
 
+itfinls:h5
 
-
-itfinls:h5 
-
-获取生成的代理对象，调用服务方法 
+获取生成的代理对象，调用服务方法
 
 ```
  /*    UserInfoResponse response = (UserInfoResponse) serviceFactory.getPortUserFactory()
@@ -767,15 +760,29 @@ itfinls:h5
         */
         logger.info("dubbox 开始调用..............."+System.currentTimeMillis());
         UserInfoService userInfoService =ComponentContextLoader.getBean(UserInfoService.class);
-        UserInfoResponse response=	userInfoService.login(userLoginRequest);
+        UserInfoResponse response=    userInfoService.login(userLoginRequest);
         logger.info("dubbox 结束调用..............."+System.currentTimeMillis());
 ```
 
+#### 服务调用方配置 
 
-
-#### 
-
-
+```
+ <?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <dubbo:application name="dubbox-ls" owner="guoyun" organization="guoyun"/>
+    <!-- 注册中心-->
+    <dubbo:registry address="zookeeper://192.168.1.14:2181"/>
+    <!--生成远程代理,可以像调用本地Bean一样使用sampleService -->
+    <dubbo:reference  id="userInfoService" interface="com.hengpeng.itfinuser.service.UserInfoService"/>
+    
+</beans>
+```
 
 
 
